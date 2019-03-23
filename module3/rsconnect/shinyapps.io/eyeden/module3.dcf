@@ -1,0 +1,12 @@
+name: module3
+title: module3
+username:
+account: eyeden
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 782839
+bundleId: 1932311
+url: https://eyeden.shinyapps.io/module3/
+when: 1552353904.32929
+asMultiple: FALSE
+asStatic: FALSE

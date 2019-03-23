@@ -1,0 +1,97 @@
+---
+title: "HW 3 608"
+author: "Iden Watanabe"
+date: "March 11, 2019"
+output: html_document
+---
+
+```{r lib, message = FALSE, warning = FALSE}
+require(shiny)
+require(plotly)
+```
+
+```{r Data}
+url <- "https://raw.githubusercontent.com/EyeDen/CUNY_DATA_608/master/module3/data/cleaned-cdc-mortality-1999-2010-2.csv"
+df <- read.csv(url)
+
+twenty.ten <- df[df$Year == 2010,]
+
+disease <- as.character(unique(df$ICD.Chapter))
+year <- unique(df$Year)
+df$State <- factor(df$State, levels = c(levels(df$State), "US"))
+
+for(d in disease){
+  for(y in year){
+    pop <- sum(df[df$ICD.Chapter == d & df$Year == y, 5])
+    deaths <- sum(df[df$ICD.Chapter == d & df$Year == y, 4])
+    cr <- (deaths / pop) * 100000
+    
+    df[nrow(df) + 1, ] <- list(d, "US", y, deaths, pop, cr)
+  }
+}
+  
+```
+
+
+```{r TwentyTen}
+# Rank States
+
+ui1 <- fluidPage(
+  headerPanel("2010 State Mortality Rankings by Cause"),
+  sidebarPanel(
+    selectInput('cod', 'Cause Of Death', unique(twenty.ten$ICD.Chapter))
+  ),
+  
+  mainPanel(
+    plotlyOutput('plot1'),
+    verbatimTextOutput('')
+  )
+)
+
+server1 <- function(input, output, session){
+  selectedData <- reactive({
+    dfSlice <- twenty.ten %>%
+      filter(ICD.Chapter == input$cod)
+  })
+  
+  output$plot1 <- renderPlotly({
+    states <- twenty.ten[twenty.ten$ICD.Chapter == input$cod,]
+    
+    xform <- list(categoryorder = "array",
+                  categoryarray = states[order(states$Crude.Rate, decreasing = TRUE), 2])
+    plot_ly(selectedData(), x = ~State, y = order~Crude.Rate, type = 'bar') %>%
+      layout(xaxis = xform)
+  })
+}
+
+shinyApp(ui = ui1, server = server1)
+```
+
+```{r Mortality Rates, warning = FALSE, message = FALSE}
+ui2 <- fluidPage(
+  headerPanel("State Mortality Rate vs National Mortality Rate"),
+  sidebarPanel(
+    selectInput('cod', 'Cause of Death', unique(df$ICD.Chapter)),
+    selectInput('state', 'State', unique(df$State))
+  ),
+  
+  mainPanel(
+    plotlyOutput('plot2'),
+    verbatimTextOutput('')
+  )
+)
+
+server2 <- function(input, output, session){
+  selectedData <- reactive({
+    dfSlice <- df %>%
+      filter(ICD.Chapter == input$cod, State == input$state | State == "US")
+  })
+
+  output$plot2 <- renderPlotly({
+    plot_ly(selectedData(), x = ~Year, y = ~Crude.Rate, color = ~State,
+          type = 'scatter', mode = 'lines')
+  })
+}
+
+shinyApp(ui = ui2, server = server2)
+```
