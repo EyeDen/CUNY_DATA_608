@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+
+<html lang = "en">
+
+<head><title>Assignment 5</title></head>
+
+<h1> Part 1</h1>
+
+<body>
+<script type = "text/javascript">
+document.write('<p> Create a function to reverse any word that you type in.  This can typed into either an input box or an alert box, and then print the result in a box or on the webpage.');
+
+function reverse(){
+	var input = document.getElementById('txt').value;
+	window.alert(input.split("").reverse().join(""));
+};
+
+</script>
+
+<p>
+	<form>
+		String to reverse:<br>
+		<input id = "txt" type = "text" size = "4">
+		<input type = "button" value = "Submit" onClick = "reverse();">
+	</form>
+</p>
+
+<script type = "text/javascript">
+document.write('<p> Create a function that takes an input number and prints a table with the first 20 multiples of the number in order (5 x 4).');
+
+function mult(){
+	var num = document.getElementById('num').value;
+	var table = document.getElementById("myTable");
+	var m = 1;
+
+	for(var i = 1; i < 6; i++){
+		var row = table.insertRow(i-1);
+
+		var cell1 = row.insertCell(0);
+		var cell2 = row.insertCell(1);
+		var cell3 = row.insertCell(2);
+		var cell4 = row.insertCell(3);
+
+		cell1.innerHTML = num * m;
+		m++;
+
+		cell2.innerHTML = num * m;
+		m++;
+
+		cell3.innerHTML = num * m;
+		m++;
+
+		cell4.innerHTML = num * m;
+		m++;
+	}
+};
+
+</script>
+
+<p>
+	<form>
+		Enter a Number: <br>
+		<input id = "num" type = "number" size = 4>
+		<input type = "button" value = "Submit" onClick = "mult();">
+	</form>
+</p>
+
+<table id = "myTable"> </table> 
+
+</body>
+
+<h2>Part 2</h2>
+
+<script>document.write('<p> Write a function to load the presidents.csv data and display the data as an html table.') </script>
+
+<script src="https://d3js.org/d3.v5.js"></script>
+
+<body>
+<script type = "text/javascript">
+var tabulate = function (data, columns) {
+  	var table = d3.select('#container').append('table');
+	var thead = table.append('thead');
+	var tbody = table.append('tbody');
+
+	// Header row
+	thead.append('tr').selectAll('th').data(columns).enter().append('th').text(function (d) { return d; });
+
+	// Row for each data
+	var rows = tbody.selectAll('tr').data(data).enter().append('tr');
+
+	// Cell for each row in each column
+	var cells = rows.selectAll('td').data(function(row) {
+	    	return columns.map(function (column) {
+	    		return { column: column, value: row[column] }
+	        });
+        }).enter().append('td').text(function (d) { return d.value });
+
+  return table
+}
+
+d3.csv('https://raw.githubusercontent.com/EyeDen/CUNY_DATA_608/master/module6/data/presidents.csv').then(function (data) {
+	var columns = ['Name', 'Height', 'Weight']
+ 	tabulate(data, columns);
+ 	//console.log(data);
+});
+
+</script>
+<div id= "container"></div>
+</body>
+
+<script>document.write('<p> Write a function that will return a president\'s height and weight when you type in their name.')</script>
+<script>
+function pres(){
+	var name = document.getElementById("name").value;
+	d3.csv('https://raw.githubusercontent.com/EyeDen/CUNY_DATA_608/master/module6/data/presidents.csv').then(function(data){
+		for(var i = 0; i < data.length; i++){
+			if(name == data[i].Name){
+				window.alert(data[i].Height + " " + data[i].Weight);
+			}
+		};	
+	});
+};
+</script>
+<p>
+	<form>
+		Enter name:<br>
+		<input id = "name" type = "text" size = "4">
+		<input type = "button" value = "Submit" onClick = "pres();">
+	</form>
+</p>
+</html>
